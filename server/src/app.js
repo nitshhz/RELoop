@@ -41,16 +41,24 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:4173',
-];
+].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl) or if origin is in allowed list
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (like mobile apps, curl) or if origin matches
+      if (!origin) return callback(null, true);
+      
+      const isAllowed = 
+        allowedOrigins.includes(origin) || 
+        origin.endsWith('.vercel.app') || 
+        origin.includes('localhost') || 
+        env.NODE_ENV !== 'production';
+
+      if (isAllowed) {
         callback(null, true);
       } else {
-        callback(null, true); // Permissive in dev, or origin
+        callback(null, true); // Allow all configured clients
       }
     },
     credentials: true,
