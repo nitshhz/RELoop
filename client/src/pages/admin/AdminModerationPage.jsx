@@ -152,6 +152,13 @@ export function AdminModerationPage() {
                     {item.description}
                   </p>
 
+                  {item.moderationReason && (
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-[11px] font-semibold">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                      <span>{item.moderationReason}</span>
+                    </div>
+                  )}
+
                   <div className="text-[11px] text-text-muted pt-1">
                     Seller: <strong className="text-text-primary">{item.seller?.name}</strong> (
                     {item.seller?.email}) • Submitted:{' '}

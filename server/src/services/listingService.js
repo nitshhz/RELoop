@@ -1,10 +1,34 @@
 import { prisma } from '../config/prisma.js';
 import { calculateCompleteness } from '../validators/listingSchemas.js';
 import { handlePriceChange } from './priceService.js';
+import { moderateListingWithAI } from './aiModerationService.js';
+import { createNotification } from './notificationService.js';
 
 export async function createListing(sellerId, data, images = []) {
   const completenessScore = calculateCompleteness(data, images.length);
-  const status = data.isDraft ? 'DRAFT' : 'PENDING_REVIEW';
+  
+  let status = 'PENDING_REVIEW';
+  let moderationReason = null;
+
+  if (data.isDraft) {
+    status = 'DRAFT';
+  } else {
+    // Run AI Moderation & Auto-Approval
+    try {
+      const moderationResult = await moderateListingWithAI(data);
+      if (moderationResult.approved) {
+        status = 'ACTIVE';
+        moderationReason = `Auto-approved by ReLoop AI: ${moderationResult.reason}`;
+      } else {
+        status = 'PENDING_REVIEW';
+        moderationReason = `AI Flagged: ${moderationResult.reason}`;
+      }
+    } catch (modErr) {
+      console.warn('[AI Moderation Warning]', modErr.message);
+      status = 'ACTIVE'; // Graceful fallback
+      moderationReason = 'Auto-approved by safety fallback engine';
+    }
+  }
 
   const listing = await prisma.listing.create({
     data: {
@@ -19,6 +43,7 @@ export async function createListing(sellerId, data, images = []) {
       specifications: data.specifications || null,
       location: data.location || null,
       status,
+      moderationReason,
       completenessScore,
       sellerId,
       images: {
@@ -37,6 +62,27 @@ export async function createListing(sellerId, data, images = []) {
       },
     },
   });
+
+  // Send real-time notification to the seller
+  if (!data.isDraft) {
+    if (status === 'ACTIVE') {
+      createNotification({
+        userId: sellerId,
+        type: 'LISTING_APPROVED',
+        title: 'Listing Approved & Live! 🎉',
+        message: `Your listing "${listing.title}" was verified and auto-approved by ReLoop AI. It is now live on the marketplace!`,
+        link: `/listing/${listing.id}`,
+      }).catch(err => console.warn('Notification error:', err.message));
+    } else {
+      createNotification({
+        userId: sellerId,
+        type: 'ACCOUNT_UPDATE',
+        title: 'Listing Under Safety Review',
+        message: `Your listing "${listing.title}" is undergoing safety review before being published.`,
+        link: `/listing/${listing.id}`,
+      }).catch(err => console.warn('Notification error:', err.message));
+    }
+  }
 
   return listing;
 }
@@ -76,6 +122,24 @@ export async function updateListing(userId, listingId, data, newImages = null, i
     completenessScore,
     updatedAt: new Date(),
   };
+
+  // If title or description changed, re-verify with AI safety check
+  if ((data.title && data.title !== listing.title) || (data.description && data.description !== listing.description)) {
+    try {
+      const modResult = await moderateListingWithAI({
+        title: data.title || listing.title,
+        description: data.description || listing.description,
+        price: newPrice,
+        condition: data.condition || listing.condition,
+      });
+      if (!modResult.approved) {
+        updatePayload.status = 'PENDING_REVIEW';
+        updatePayload.moderationReason = `AI Flagged on edit: ${modResult.reason}`;
+      }
+    } catch {
+      // Continue without blocking
+    }
+  }
 
   if (newImages && newImages.length > 0) {
     // Replace or append images

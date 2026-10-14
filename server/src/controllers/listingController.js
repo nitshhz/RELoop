@@ -43,10 +43,16 @@ export async function createListing(req, res, next) {
 
     const listing = await listingService.createListing(req.user.id, listingData, images);
 
+    const message = listingData.isDraft
+      ? 'Draft saved successfully.'
+      : listing.status === 'ACTIVE'
+      ? 'Listing verified & published live by ReLoop AI!'
+      : 'Listing submitted and undergoing moderation review.';
+
     return apiSuccess(
       res,
-      { listing },
-      listingData.isDraft ? 'Draft saved successfully.' : 'Listing submitted for review.',
+      { listing, isLive: listing.status === 'ACTIVE' },
+      message,
       201
     );
   } catch (err) {

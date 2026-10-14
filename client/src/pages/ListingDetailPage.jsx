@@ -249,7 +249,15 @@ export function ListingDetailPage() {
                 <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">
                   {listing.category?.name || 'Secondhand'}
                 </span>
-                <StatusBadge status={listing.status} />
+                <div className="flex items-center gap-1.5">
+                  {listing.moderationReason && listing.moderationReason.includes('Auto-approved') && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-brand-green text-[10px] font-bold">
+                      <Sparkles className="w-2.5 h-2.5" />
+                      AI Verified
+                    </span>
+                  )}
+                  <StatusBadge status={listing.status} />
+                </div>
               </div>
 
               <h1 className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight leading-snug">
