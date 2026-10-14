@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Download, ShieldCheck, RefreshCw, Sparkles, Heart } from 'lucide-react';
+import { Logo } from '../ui/Logo.jsx';
 
 export function Footer() {
   return (
@@ -9,14 +10,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Col */}
           <div className="space-y-3 md:col-span-1">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-brand-green flex items-center justify-center text-white font-extrabold text-sm shadow-sm">
-                RL
-              </div>
-              <span className="text-lg font-extrabold text-text-primary tracking-tight">
-                Re<span className="text-brand-green">Loop</span>
-              </span>
-            </Link>
+            <Logo size="sm" variant="simple" />
             <p className="text-xs text-text-muted leading-relaxed">
               Buy smarter. Sell easier. Waste less. ReLoop is a peer-to-peer secondhand marketplace designed for practical circular commerce.
             </p>

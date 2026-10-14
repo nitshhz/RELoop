@@ -7,6 +7,7 @@ import { User, Mail, Lock, AlertCircle, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Button } from '../components/ui/Button.jsx';
 import { Input } from '../components/ui/Input.jsx';
+import { Logo } from '../components/ui/Logo.jsx';
 
 const registerSchema = z.object({
   name: z.string().trim().min(2, 'Name must be at least 2 characters'),
@@ -41,8 +42,8 @@ export function RegisterPage() {
     <div className="min-h-[75vh] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md clay-card p-6 sm:p-8 bg-white space-y-6">
         <div className="text-center space-y-1">
-          <div className="w-12 h-12 rounded-2xl bg-brand-green text-white font-extrabold text-xl flex items-center justify-center mx-auto shadow-clay-button mb-3">
-            RL
+          <div className="flex justify-center mb-3">
+            <Logo size="lg" variant="iconOnly" asLink={false} />
           </div>
           <h1 className="text-2xl font-extrabold text-text-primary tracking-tight">
             Join ReLoop Marketplace

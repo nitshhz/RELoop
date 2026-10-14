@@ -18,6 +18,7 @@ import {
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useNotifications } from '../../context/NotificationContext.jsx';
 import { Button } from '../ui/Button.jsx';
+import { Logo } from '../ui/Logo.jsx';
 
 export function Navbar() {
   const { user, logout, isAdmin } = useAuth();
@@ -42,19 +43,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20 gap-3 sm:gap-6">
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
-            <div className="w-10 h-10 rounded-2xl bg-brand-green flex items-center justify-center text-white shadow-clay-button group-hover:scale-105 transition-transform">
-              <span className="text-xl font-extrabold tracking-tighter">RL</span>
-            </div>
-            <div>
-              <span className="text-xl font-extrabold text-text-primary tracking-tight">
-                Re<span className="text-brand-green">Loop</span>
-              </span>
-              <span className="hidden sm:block text-[10px] text-text-muted font-semibold tracking-wider uppercase -mt-1">
-                Resale Marketplace
-              </span>
-            </div>
-          </Link>
+          <Logo size="md" />
 
           {/* Search Bar (Desktop) */}
           <form
