@@ -46,11 +46,11 @@ export const upload = multer({
 /**
  * Helper to upload a local file to Cloudinary or return local static URL
  */
-export async function processUploadedFile(file, req) {
+export async function processUploadedFile(file, req, folder = 'reloop/listings') {
   if (env.STORAGE_TYPE === 'cloudinary' && env.CLOUDINARY_CLOUD_NAME && env.CLOUDINARY_API_KEY) {
     try {
       const result = await cloudinary.uploader.upload(file.path, {
-        folder: 'reloop/listings',
+        folder,
         resource_type: 'image',
       });
       // Optionally clean up local temp file

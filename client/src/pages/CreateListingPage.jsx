@@ -12,6 +12,7 @@ import { apiRequest } from '../lib/api.js';
 import { Button } from '../components/ui/Button.jsx';
 import { Input, Textarea } from '../components/ui/Input.jsx';
 import { CompletenessMeter } from '../components/ui/CompletenessMeter.jsx';
+import { MediaUploadZone } from '../components/ui/MediaUploadZone.jsx';
 
 export function CreateListingPage() {
   const navigate = useNavigate();
@@ -249,41 +250,17 @@ export function CreateListingPage() {
             onChange={(e) => setLocation(e.target.value)}
           />
 
-          {/* Photo Uploader */}
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold text-text-primary">
-              Upload Product Photos (Up to 5 images, max 5MB each)
-            </label>
-            <div className="border-2 border-dashed border-border-subtle rounded-2xl p-6 text-center hover:bg-background-secondary/50 transition-colors cursor-pointer relative">
-              <input
-                type="file"
-                multiple
-                accept="image/jpeg,image/png,image/webp"
-                onChange={handleImageChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
-              <Upload className="w-8 h-8 text-text-muted mx-auto mb-2" />
-              <p className="text-xs font-bold text-text-primary">
-                Click or drag & drop photos here
-              </p>
-              <p className="text-[11px] text-text-muted mt-0.5">
-                PNG, JPEG, WebP up to 5MB
-              </p>
-            </div>
-
-            {imagePreviews.length > 0 && (
-              <div className="flex items-center gap-3 pt-2 overflow-x-auto">
-                {imagePreviews.map((url, idx) => (
-                  <div
-                    key={idx}
-                    className="w-20 h-20 rounded-xl overflow-hidden border border-border-subtle shrink-0"
-                  >
-                    <img src={url} alt="" className="w-full h-full object-cover" />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Photo Uploader with Gallery and Camera Support */}
+          <MediaUploadZone
+            images={images}
+            onChange={(newImages) => {
+              setImages(newImages);
+              setImagePreviews(newImages.map((f) => (f instanceof File || f instanceof Blob ? URL.createObjectURL(f) : f)));
+            }}
+            maxImages={5}
+            label="Upload Product Photos (Up to 5 images, max 5MB each)"
+            sublabel="Choose from your gallery, upload from files, or take photos directly with camera"
+          />
 
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">

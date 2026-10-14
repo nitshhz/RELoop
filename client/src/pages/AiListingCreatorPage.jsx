@@ -15,6 +15,7 @@ import { apiRequest } from '../lib/api.js';
 import { Button } from '../components/ui/Button.jsx';
 import { Input, Textarea } from '../components/ui/Input.jsx';
 import { CompletenessMeter } from '../components/ui/CompletenessMeter.jsx';
+import { MediaUploadZone } from '../components/ui/MediaUploadZone.jsx';
 
 export function AiListingCreatorPage() {
   const navigate = useNavigate();
@@ -264,6 +265,18 @@ export function AiListingCreatorPage() {
             onChange={(e) => setAdditionalDetails(e.target.value)}
           />
 
+          {/* Product Photos in Step 1 */}
+          <MediaUploadZone
+            images={images}
+            onChange={(newImages) => {
+              setImages(newImages);
+              setImagePreviews(newImages.map((f) => (f instanceof File || f instanceof Blob ? URL.createObjectURL(f) : f)));
+            }}
+            maxImages={5}
+            label="Product Photos (Optional now, or add in Step 2)"
+            sublabel="Snap the item with your camera or select from gallery"
+          />
+
           {aiError && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
@@ -384,45 +397,17 @@ export function AiListingCreatorPage() {
                 onChange={(e) => setLocation(e.target.value)}
               />
 
-              {/* Photos Upload */}
-              <div className="space-y-2">
-                <label className="block text-xs font-semibold text-text-primary">
-                  Upload Product Photos (Up to 5 images, max 5MB each)
-                </label>
-                <div className="border-2 border-dashed border-border-subtle rounded-2xl p-6 text-center hover:bg-background-secondary/50 transition-colors cursor-pointer relative">
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/jpeg,image/png,image/webp"
-                    onChange={handleImageChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  <Upload className="w-8 h-8 text-text-muted mx-auto mb-2" />
-                  <p className="text-xs font-bold text-text-primary">
-                    Click or drag & drop photos here
-                  </p>
-                  <p className="text-[11px] text-text-muted mt-0.5">
-                    JPEG, PNG or WebP format up to 5MB
-                  </p>
-                </div>
-
-                {/* Photo Previews */}
-                {imagePreviews.length > 0 && (
-                  <div className="flex items-center gap-3 pt-2 overflow-x-auto">
-                    {imagePreviews.map((url, idx) => (
-                      <div
-                        key={idx}
-                        className="w-20 h-20 rounded-xl overflow-hidden border border-border-subtle shrink-0 relative"
-                      >
-                        <img src={url} alt="" className="w-full h-full object-cover" />
-                        <span className="absolute bottom-1 right-1 text-[9px] bg-black/60 text-white px-1 rounded">
-                          #{idx + 1}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {/* Photos Upload with Gallery and Camera Support in Step 2 */}
+              <MediaUploadZone
+                images={images}
+                onChange={(newImages) => {
+                  setImages(newImages);
+                  setImagePreviews(newImages.map((f) => (f instanceof File || f instanceof Blob ? URL.createObjectURL(f) : f)));
+                }}
+                maxImages={5}
+                label="Product Photos (Up to 5 images, max 5MB each)"
+                sublabel="Choose from your gallery, upload from files, or take photos directly with camera"
+              />
             </div>
 
             {submitError && (

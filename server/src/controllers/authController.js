@@ -1,6 +1,7 @@
 import * as authService from '../services/authService.js';
 import { apiSuccess, apiError } from '../utils/apiResponse.js';
 import { env } from '../config/env.js';
+import { processUploadedFile } from '../middleware/upload.js';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -42,6 +43,21 @@ export async function updateProfile(req, res, next) {
   try {
     const updated = await authService.updateUserProfile(req.user.id, req.body);
     return apiSuccess(res, { user: updated }, 'Profile updated successfully.');
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function uploadAvatar(req, res, next) {
+  try {
+    if (!req.file) {
+      return apiError(res, 'No image file provided.', 400);
+    }
+    const processed = await processUploadedFile(req.file, req, 'reloop/avatars');
+    const updated = await authService.updateUserProfile(req.user.id, {
+      avatar: processed.url,
+    });
+    return apiSuccess(res, { avatarUrl: processed.url, user: updated }, 'Avatar uploaded successfully.');
   } catch (err) {
     next(err);
   }

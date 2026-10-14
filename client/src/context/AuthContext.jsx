@@ -70,6 +70,18 @@ export function AuthProvider({ children }) {
     return data.user;
   }
 
+  async function uploadAvatar(file) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    const data = await apiRequest('/auth/avatar', {
+      method: 'POST',
+      data: formData,
+      isFormData: true,
+    });
+    setUser(data.user);
+    return data.user;
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -81,6 +93,7 @@ export function AuthProvider({ children }) {
         register,
         logout,
         updateProfile,
+        uploadAvatar,
         refreshUser: checkCurrentUser,
       }}
     >
