@@ -18,6 +18,8 @@ router.post('/logout', authController.logout);
 router.get('/me', requireAuth, authController.getMe);
 router.put('/profile', requireAuth, validate(updateProfileSchema), authController.updateProfile);
 router.put('/change-password', requireAuth, validate(changePasswordSchema), authController.changePassword);
+router.post('/forgot-password', authLimiter, authController.forgotPassword);
+router.post('/reset-password', authLimiter, authController.resetPassword);
 router.get('/user/:userId', authController.getPublicProfile);
 
 export default router;

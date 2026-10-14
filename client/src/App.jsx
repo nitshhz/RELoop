@@ -21,6 +21,7 @@ import { ProfilePage } from './pages/ProfilePage.jsx';
 import { UserPublicProfilePage } from './pages/UserPublicProfilePage.jsx';
 import { LoginPage } from './pages/LoginPage.jsx';
 import { RegisterPage } from './pages/RegisterPage.jsx';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage.jsx';
 
 // Admin Pages
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage.jsx';
@@ -82,6 +83,7 @@ export default function App() {
           <Route path="/user/:userId" element={<UserPublicProfilePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
           {/* Static policy & trust pages */}
           <Route path="/about" element={<AboutPage />} />

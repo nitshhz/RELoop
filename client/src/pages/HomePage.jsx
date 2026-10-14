@@ -10,6 +10,7 @@ import {
   Repeat,
   Tag,
   Loader2,
+  X,
 } from 'lucide-react';
 import { apiRequest } from '../lib/api.js';
 import { ListingCard } from '../components/marketplace/ListingCard.jsx';
@@ -27,6 +28,14 @@ export function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [welcomeDismissed, setWelcomeDismissed] = useState(() => {
+    return localStorage.getItem('reloop_welcome_dismissed') === 'true';
+  });
+
+  function dismissWelcome() {
+    setWelcomeDismissed(true);
+    localStorage.setItem('reloop_welcome_dismissed', 'true');
+  }
 
   useEffect(() => {
     loadHomeData();
@@ -72,6 +81,46 @@ export function HomePage() {
 
   return (
     <div className="space-y-12 pb-12">
+      {/* First-Time Visitor Welcome Banner */}
+      {!user && !welcomeDismissed && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          <div className="clay-card bg-emerald-50/90 border border-emerald-200/80 p-4 sm:p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-brand-green text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                <Sparkles className="w-5 h-5 text-emerald-200" />
+              </div>
+              <div className="space-y-0.5">
+                <h3 className="font-extrabold text-sm sm:text-base text-emerald-950">
+                  Welcome to ReLoop Marketplace!
+                </h3>
+                <p className="text-xs text-emerald-800/90 max-w-2xl leading-relaxed">
+                  Buy smarter, sell easier, and waste less. Create an account or sign in to start making offers, messaging verified sellers, and publishing your pre-owned items.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto">
+              <Link to="/register" className="w-full sm:w-auto">
+                <Button size="sm" variant="primary" className="w-full sm:w-auto shadow-clay-button font-bold">
+                  Create Account
+                </Button>
+              </Link>
+              <Link to="/login" className="w-full sm:w-auto">
+                <Button size="sm" variant="secondary" className="w-full sm:w-auto font-bold">
+                  Sign In
+                </Button>
+              </Link>
+              <button
+                onClick={dismissWelcome}
+                title="Dismiss message"
+                className="text-emerald-700 hover:text-emerald-950 p-1.5 rounded-lg hover:bg-emerald-100 transition-colors ml-1 hidden sm:block"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-6 sm:pt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -94,6 +143,25 @@ export function HomePage() {
               <p className="text-sm sm:text-base text-text-muted leading-relaxed max-w-2xl">
                 ReLoop gives electronics, furniture, books, and lifestyle goods a second life with verified listings, built-in offers, quick buyer-seller chat, and AI-powered listing tools.
               </p>
+
+              {/* First-time / Unauthenticated visitor CTA buttons */}
+              {!user && (
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+                  <Link to="/register" className="w-full sm:w-auto">
+                    <Button size="lg" variant="primary" className="w-full sm:w-auto shadow-clay-button flex items-center justify-center gap-2 font-bold">
+                      Create Free Account <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                  <Link to="/login" className="w-full sm:w-auto">
+                    <Button size="lg" variant="secondary" className="w-full sm:w-auto flex items-center justify-center font-bold">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <span className="text-xs text-text-muted hidden md:inline-block pl-2">
+                    Free peer-to-peer circular resale
+                  </span>
+                </div>
+              )}
 
               {/* Big Search Bar */}
               <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 pt-2">

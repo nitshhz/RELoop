@@ -172,3 +172,82 @@ export async function changePassword(userId, currentPassword, newPassword) {
 
   return true;
 }
+
+// In-memory token store for password reset with 15-minute expiry
+const resetTokens = new Map();
+
+export async function requestPasswordReset(email) {
+  if (!email) {
+    const error = new Error('Email address is required.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const normalized = email.toLowerCase().trim();
+  const user = await prisma.user.findUnique({
+    where: { email: normalized },
+    select: { id: true, email: true, name: true },
+  });
+
+  if (!user) {
+    return {
+      message: 'If an account exists with this email, instructions have been sent.',
+    };
+  }
+
+  // Generate 6-digit verification code
+  const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = Date.now() + 15 * 60 * 1000; // 15 mins
+
+  resetTokens.set(normalized, {
+    code: resetCode,
+    expiresAt,
+    userId: user.id,
+  });
+
+  console.log(`[ReLoop Password Reset] Reset code for ${normalized}: ${resetCode}`);
+
+  return {
+    message: 'Reset code generated. Enter the code and your new password.',
+    resetCode, // provided for seamless user testing
+  };
+}
+
+export async function resetPasswordWithCode(email, code, newPassword) {
+  if (!email || !code || !newPassword) {
+    const error = new Error('Email, verification code, and new password are required.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (newPassword.length < 8) {
+    const error = new Error('Password must be at least 8 characters long.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const normalized = email.toLowerCase().trim();
+  const record = resetTokens.get(normalized);
+
+  if (!record || record.code !== code.trim()) {
+    const error = new Error('Invalid or expired password reset code.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (Date.now() > record.expiresAt) {
+    resetTokens.delete(normalized);
+    const error = new Error('Reset code has expired. Please request a new one.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const newHash = await hashPassword(newPassword);
+  await prisma.user.update({
+    where: { id: record.userId },
+    data: { passwordHash: newHash },
+  });
+
+  resetTokens.delete(normalized);
+  return { message: 'Password reset successfully. You can now log in.' };
+}

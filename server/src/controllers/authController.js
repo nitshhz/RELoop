@@ -76,3 +76,24 @@ export async function getPublicProfile(req, res, next) {
     next(err);
   }
 }
+
+export async function forgotPassword(req, res, next) {
+  try {
+    const { email } = req.body;
+    const result = await authService.requestPasswordReset(email);
+    return apiSuccess(res, result, result.message);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function resetPassword(req, res, next) {
+  try {
+    const { email, code, newPassword } = req.body;
+    const result = await authService.resetPasswordWithCode(email, code, newPassword);
+    return apiSuccess(res, null, result.message);
+  } catch (err) {
+    next(err);
+  }
+}
+
