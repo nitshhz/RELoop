@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -7,16 +8,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#F7F5F0',
-        'background-secondary': '#EFEEE8',
-        'text-primary': '#20251F',
-        'text-muted': '#74786F',
-        'brand-green': '#356B50',
-        'brand-green-hover': '#28523D',
-        'brand-green-soft': '#DCE9DD',
-        'terracotta': '#D98169',
-        'terracotta-hover': '#C36F58',
-        'border-subtle': '#E2E0D8',
+        background: 'var(--color-bg, #F7F5F0)',
+        'background-secondary': 'var(--color-bg-secondary, #EFEEE8)',
+        'card-bg': 'var(--color-card-bg, #FFFFFF)',
+        'text-primary': 'var(--color-text-primary, #20251F)',
+        'text-muted': 'var(--color-text-muted, #74786F)',
+        'brand-green': 'var(--color-brand-green, #356B50)',
+        'brand-green-hover': 'var(--color-brand-green-hover, #28523D)',
+        'brand-green-soft': 'var(--color-brand-green-soft, #DCE9DD)',
+        'terracotta': 'var(--color-terracotta, #D98169)',
+        'terracotta-hover': 'var(--color-terracotta-hover, #C36F58)',
+        'border-subtle': 'var(--color-border-subtle, #E2E0D8)',
       },
       fontFamily: {
         sans: ['Manrope', 'sans-serif'],

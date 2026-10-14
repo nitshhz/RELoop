@@ -44,7 +44,7 @@ export function Logo({
     <div className={`flex items-center gap-2.5 shrink-0 group ${className}`}>
       {/* Brand Icon Mark */}
       <div
-        className={`${currentSize.box} overflow-hidden shadow-clay-card border border-border-subtle bg-[#F7F5F0] flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shrink-0`}
+        className={`${currentSize.box} overflow-hidden shadow-sm border border-border-subtle bg-transparent flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shrink-0`}
       >
         <img
           src="/logo.png"

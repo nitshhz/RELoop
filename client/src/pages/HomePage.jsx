@@ -84,16 +84,16 @@ export function HomePage() {
       {/* First-Time Visitor Welcome Banner */}
       {!user && !welcomeDismissed && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-          <div className="clay-card bg-emerald-50/90 border border-emerald-200/80 p-4 sm:p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative shadow-sm">
+          <div className="clay-card bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 p-4 sm:p-5 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative shadow-sm">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-brand-green text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
                 <Sparkles className="w-5 h-5 text-emerald-200" />
               </div>
               <div className="space-y-0.5">
-                <h3 className="font-extrabold text-sm sm:text-base text-emerald-950">
+                <h3 className="font-extrabold text-sm sm:text-base text-emerald-950 dark:text-emerald-200">
                   Welcome to ReLoop Marketplace!
                 </h3>
-                <p className="text-xs text-emerald-800/90 max-w-2xl leading-relaxed">
+                <p className="text-xs text-emerald-800/90 dark:text-emerald-300/80 max-w-2xl leading-relaxed">
                   Buy smarter, sell easier, and waste less. Create an account or sign in to start making offers, messaging verified sellers, and publishing your pre-owned items.
                 </p>
               </div>
@@ -112,7 +112,7 @@ export function HomePage() {
               <button
                 onClick={dismissWelcome}
                 title="Dismiss message"
-                className="text-emerald-700 hover:text-emerald-950 p-1.5 rounded-lg hover:bg-emerald-100 transition-colors ml-1 hidden sm:block"
+                className="text-emerald-700 dark:text-emerald-300 hover:text-emerald-950 dark:hover:text-emerald-100 p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors ml-1 hidden sm:block"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -124,13 +124,13 @@ export function HomePage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-6 sm:pt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="clay-card bg-gradient-to-br from-white via-[#FDFBF7] to-[#F3EFE6] p-6 sm:p-12 lg:p-16 relative overflow-hidden border border-border-subtle">
+          <div className="clay-card hero-clay-card bg-gradient-to-br from-white via-[#FDFBF7] to-[#F3EFE6] p-6 sm:p-12 lg:p-16 relative overflow-hidden border border-border-subtle">
             {/* Background Accent Graphics */}
-            <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-brand-green-soft/40 blur-3xl pointer-events-none" />
-            <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-orange-100/30 blur-3xl pointer-events-none" />
+            <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-brand-green-soft/40 dark:bg-emerald-900/20 blur-3xl pointer-events-none" />
+            <div className="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-orange-100/30 dark:bg-emerald-950/30 blur-3xl pointer-events-none" />
 
             <div className="max-w-3xl space-y-6 relative z-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-green-soft border border-emerald-200 text-brand-green text-xs font-bold">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-green-soft dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 text-brand-green text-xs font-bold">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Next-Gen Secondhand Resale</span>
               </div>
