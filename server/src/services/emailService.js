@@ -72,16 +72,22 @@ export async function sendPasswordResetEmail(email, name, resetCode) {
   const client = getResendClient();
   if (client) {
     try {
-      const data = await client.emails.send({
+      const response = await client.emails.send({
         from: fromAddress,
         to: email,
         subject: `Your ReLoop Password Reset Code: ${resetCode}`,
         html: htmlContent,
       });
-      console.log(`[Resend Email] Password reset email sent to ${email} (ID: ${data.id})`);
-      return { success: true, id: data.id };
+
+      if (response.error) {
+        console.warn(`[Resend Email Notice] Could not send to ${email}: ${response.error.message}`);
+        return { success: false, error: response.error.message };
+      }
+
+      console.log(`[Resend Email Success] Password reset email sent to ${email} (ID: ${response.data?.id})`);
+      return { success: true, id: response.data?.id };
     } catch (err) {
-      console.warn(`[Resend Email Error] Failed to send email to ${email}:`, err.message);
+      console.warn(`[Resend Email Exception] Failed to send email to ${email}:`, err.message);
       return { success: false, error: err.message };
     }
   } else {
