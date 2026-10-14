@@ -43,7 +43,7 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-40 bg-[#F7F5F0]/90 backdrop-blur-md border-b border-border-subtle">
+    <header className="sticky top-0 z-40 bg-[#F7F5F0]/95 dark:bg-[#111612]/95 backdrop-blur-md border-b border-border-subtle dark:border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20 gap-3 sm:gap-6">
           {/* Brand Logo */}

@@ -57,6 +57,20 @@ body {
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
+/* iOS WebKit Hardware Acceleration & Backdrop Blur Compositing Shield */
+header,
+nav,
+.clay-card,
+.backdrop-blur-md,
+.backdrop-blur-sm,
+.backdrop-blur-lg,
+.backdrop-blur-xl {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
 /* Custom restrained claymorphic components */
 @layer components {
   .clay-card {
