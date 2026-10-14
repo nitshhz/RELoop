@@ -259,20 +259,37 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Toggle Button */}
-          <div className="flex items-center gap-2 md:hidden">
-            <Link
-              to="/notifications"
-              className="p-2 text-text-muted relative"
-              aria-label="Notifications"
+          {/* Mobile Actions: Theme Toggle, Notifications, Menu */}
+          <div className="flex items-center gap-1.5 md:hidden">
+            {/* Direct Mobile Header Theme Toggle */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 rounded-xl text-text-muted hover:text-brand-green dark:text-slate-300 dark:hover:text-emerald-400 hover:bg-background-secondary dark:hover:bg-slate-800 transition-colors"
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle theme"
             >
-              <Bell className="w-5 h-5" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-terracotta text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                  {unreadCount}
-                </span>
+              {isDark ? (
+                <Sun className="w-5 h-5 text-amber-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-brand-green" />
               )}
-            </Link>
+            </button>
+
+            {user && (
+              <Link
+                to="/notifications"
+                className="p-2 text-text-muted relative"
+                aria-label="Notifications"
+              >
+                <Bell className="w-5 h-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-terracotta text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
+              </Link>
+            )}
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -284,7 +301,7 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Search Input Drawer */}
+        {/* Mobile Search & Menu Drawer */}
         {mobileMenuOpen && (
           <div className="md:hidden pb-4 pt-2 border-t border-border-subtle space-y-3">
             <form onSubmit={handleSearchSubmit} className="relative">
@@ -302,14 +319,14 @@ export function Navbar() {
               <Link
                 to="/browse"
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-2.5 bg-white rounded-xl text-xs font-bold text-center border border-border-subtle"
+                className="p-2.5 bg-white dark:bg-slate-800 rounded-xl text-xs font-bold text-center border border-border-subtle dark:border-slate-700"
               >
                 Browse All Items
               </Link>
               <Link
                 to="/ai-creator"
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-2.5 bg-brand-green-soft text-brand-green rounded-xl text-xs font-bold text-center border border-emerald-200"
+                className="p-2.5 bg-brand-green-soft dark:bg-emerald-950/60 text-brand-green dark:text-emerald-400 rounded-xl text-xs font-bold text-center border border-emerald-200 dark:border-emerald-800"
               >
                 AI Listing Creator
               </Link>
@@ -347,24 +364,6 @@ export function Navbar() {
                     Admin Moderation Panel
                   </Link>
                 )}
-                {/* Mobile Theme Toggle */}
-                <button
-                  type="button"
-                  onClick={toggleTheme}
-                  className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-text-primary hover:bg-background-secondary rounded-xl transition-colors my-1 border-t border-border-subtle pt-2"
-                >
-                  <div className="flex items-center gap-2.5">
-                    {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-brand-green" />}
-                    <span>{isDark ? 'Light Theme' : 'Dark Theme'}</span>
-                  </div>
-                  <div
-                    className={`w-8 h-4 flex items-center rounded-full p-0.5 transition-colors ${
-                      isDark ? 'bg-brand-green justify-end' : 'bg-gray-300 justify-start'
-                    }`}
-                  >
-                    <div className="w-3 h-3 rounded-full bg-white shadow-sm" />
-                  </div>
-                </button>
 
                 <button
                   onClick={() => {
@@ -398,6 +397,31 @@ export function Navbar() {
                 </Link>
               </div>
             )}
+
+            {/* Mobile Theme Toggle - Always visible for both Guests & Authenticated Users */}
+            <div className="pt-2 border-t border-border-subtle dark:border-slate-800">
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-text-primary dark:text-slate-200 hover:bg-background-secondary dark:hover:bg-slate-800 rounded-xl transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  {isDark ? (
+                    <Sun className="w-4 h-4 text-amber-400" />
+                  ) : (
+                    <Moon className="w-4 h-4 text-brand-green dark:text-emerald-400" />
+                  )}
+                  <span>{isDark ? 'Light Theme' : 'Dark Theme'}</span>
+                </div>
+                <div
+                  className={`w-8 h-4 flex items-center rounded-full p-0.5 transition-colors ${
+                    isDark ? 'bg-brand-green justify-end' : 'bg-gray-300 dark:bg-slate-700 justify-start'
+                  }`}
+                >
+                  <div className="w-3 h-3 rounded-full bg-white shadow-sm" />
+                </div>
+              </button>
+            </div>
           </div>
         )}
       </div>
