@@ -47,6 +47,10 @@ export function ListingCard({ listing, onUnsave }) {
     }
   }
 
+  const FALLBACK_IMAGE =
+    'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80';
+  const [imgSrc, setImgSrc] = useState(primaryImage);
+
   return (
     <Link
       to={`/listing/${listing.id}`}
@@ -55,9 +59,10 @@ export function ListingCard({ listing, onUnsave }) {
       {/* Product Image Container */}
       <div className="relative aspect-[4/3] w-full bg-background-secondary overflow-hidden">
         <img
-          src={primaryImage}
+          src={imgSrc || FALLBACK_IMAGE}
           alt={listing.title}
           loading="lazy"
+          onError={() => setImgSrc(FALLBACK_IMAGE)}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out"
         />
 
