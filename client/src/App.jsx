@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Navbar } from './components/layout/Navbar.jsx';
 import { Footer } from './components/layout/Footer.jsx';
 import { MobileNav } from './components/layout/MobileNav.jsx';
+import { IntroSplash } from './components/layout/IntroSplash.jsx';
 import { useAuth } from './context/AuthContext.jsx';
 
 // Pages
@@ -72,6 +73,7 @@ function AdminRoute({ children }) {
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-text-primary selection:bg-brand-green-soft selection:text-brand-green">
+      <IntroSplash />
       <Navbar />
 
       <main className="flex-1">

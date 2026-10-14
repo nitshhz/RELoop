@@ -276,3 +276,46 @@ body {
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #3B4B3F;
 }
+
+/* Cinematic ReLoop First-Visit Intro Animations */
+@keyframes reloopIntroKeyframes {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+    filter: blur(14px);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.02);
+    filter: blur(0px);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.06);
+    filter: blur(0px);
+  }
+  85% {
+    opacity: 0.95;
+    transform: scale(1.10);
+    filter: blur(1px);
+  }
+  100% {
+    opacity: 0.9;
+    transform: scale(1.14);
+    filter: blur(2px);
+  }
+}
+
+.animate-reloop-intro {
+  animation: reloopIntroKeyframes 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity, filter;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-reloop-intro {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
