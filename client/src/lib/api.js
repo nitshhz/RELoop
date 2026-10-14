@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const rawApiUrl = import.meta.env.VITE_API_URL || '/api';
+const API_BASE_URL = rawApiUrl.replace(/\/+$/, '');
 
 export async function apiRequest(endpoint, options = {}) {
   const { method = 'GET', data, params, headers = {}, isFormData = false } = options;
