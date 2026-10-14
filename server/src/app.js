@@ -101,6 +101,20 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Dual mount fallback (supports clients calling without /api prefix)
+app.use('/auth', authRoutes);
+app.use('/listings', listingRoutes);
+app.use('/offers', offerRoutes);
+app.use('/conversations', conversationRoutes);
+app.use('/notifications', notificationRoutes);
+app.use('/ai', aiRoutes);
+app.use('/saved', savedRoutes);
+app.use('/categories', categoryRoutes);
+app.use('/price', priceRoutes);
+app.use('/reports', reportRoutes);
+app.use('/analytics', analyticsRoutes);
+app.use('/admin', adminRoutes);
+
 // 404 handler for unknown API routes
 app.use('/api/*', (req, res) => {
   res.status(404).json({
