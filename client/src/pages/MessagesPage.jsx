@@ -16,10 +16,12 @@ import {
   X,
   CheckCircle2,
   ZoomIn,
+  PenTool,
 } from 'lucide-react';
 import { apiRequest } from '../lib/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Button } from '../components/ui/Button.jsx';
+import { ScribblePadModal } from '../components/ui/ScribblePadModal.jsx';
 
 export function MessagesPage() {
   const { conversationId } = useParams();
@@ -39,6 +41,7 @@ export function MessagesPage() {
   const [selectedImagePreview, setSelectedImagePreview] = useState(null);
   const [imageError, setImageError] = useState(null);
   const [lightboxImage, setLightboxImage] = useState(null);
+  const [isScribbleOpen, setIsScribbleOpen] = useState(false);
 
   const chatFeedRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -69,6 +72,12 @@ export function MessagesPage() {
 
   useEffect(() => {
     scrollToBottom();
+    const t1 = setTimeout(scrollToBottom, 120);
+    const t2 = setTimeout(scrollToBottom, 400);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, [messages]);
 
   function scrollToBottom() {
@@ -188,7 +197,7 @@ export function MessagesPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 py-2 sm:py-4">
       {/* Hidden file inputs for Gallery/Files and Camera */}
       <input
         type="file"
@@ -204,6 +213,17 @@ export function MessagesPage() {
         capture="environment"
         onChange={handleImageFileChange}
         className="hidden"
+      />
+
+      {/* Scribble Pad Drawing Modal */}
+      <ScribblePadModal
+        isOpen={isScribbleOpen}
+        onClose={() => setIsScribbleOpen(false)}
+        onSaveScribble={(file) => {
+          setSelectedImageFile(file);
+          setSelectedImagePreview(URL.createObjectURL(file));
+          setImageError(null);
+        }}
       />
 
       {/* Lightbox Modal for Fullscreen Image Viewing */}
@@ -237,19 +257,19 @@ export function MessagesPage() {
         </div>
       )}
 
-      <div className="clay-card bg-white dark:bg-slate-900 overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[580px] h-[calc(100vh-140px)] max-h-[800px] border border-border-subtle dark:border-slate-800 transition-colors">
+      <div className="clay-card bg-white dark:bg-slate-900 overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[480px] h-[calc(100dvh-100px)] sm:h-[calc(100dvh-125px)] max-h-[860px] border border-border-subtle dark:border-slate-800 transition-colors">
         {/* Left Pane: Conversations List (4 cols) */}
         <div
-          className={`md:col-span-4 border-r border-border-subtle dark:border-slate-800 flex flex-col ${
+          className={`md:col-span-4 border-r border-border-subtle dark:border-slate-800 flex flex-col h-full min-h-0 overflow-hidden ${
             conversationId ? 'hidden md:flex' : 'flex'
           }`}
         >
-          <div className="p-4 border-b border-border-subtle dark:border-slate-800 bg-background-secondary/30 dark:bg-slate-800/40">
+          <div className="shrink-0 p-4 border-b border-border-subtle dark:border-slate-800 bg-background-secondary/30 dark:bg-slate-800/40">
             <h2 className="text-base font-bold text-text-primary dark:text-slate-100">Messages</h2>
             <p className="text-xs text-text-muted dark:text-slate-400">Direct chats linked to product listings</p>
           </div>
 
-          <div className="overflow-y-auto flex-1 divide-y divide-border-subtle dark:divide-slate-800">
+          <div className="overflow-y-auto flex-1 min-h-0 divide-y divide-border-subtle dark:divide-slate-800">
             {loading ? (
               <div className="p-8 text-center text-xs text-text-muted dark:text-slate-400">Loading chats...</div>
             ) : conversations.length === 0 ? (
@@ -327,14 +347,14 @@ export function MessagesPage() {
 
         {/* Right Pane: Active Chat Window (8 cols) */}
         <div
-          className={`md:col-span-8 flex flex-col bg-[#FAF9F5] dark:bg-slate-950 ${
+          className={`md:col-span-8 flex flex-col h-full min-h-0 overflow-hidden bg-[#FAF9F5] dark:bg-slate-950 ${
             !conversationId ? 'hidden md:flex' : 'flex'
           }`}
         >
           {conversationId && activeConversation ? (
             <>
               {/* Header */}
-              <div className="p-3.5 border-b border-border-subtle dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between transition-colors">
+              <div className="shrink-0 p-3.5 border-b border-border-subtle dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between transition-colors">
                 <div className="flex items-center gap-3 min-w-0">
                   <button
                     onClick={() => navigate('/messages')}
@@ -401,7 +421,7 @@ export function MessagesPage() {
               </div>
 
               {/* Messages Feed */}
-              <div ref={chatFeedRef} className="flex-1 p-4 overflow-y-auto space-y-3">
+              <div ref={chatFeedRef} className="flex-1 min-h-0 p-4 overflow-y-auto space-y-3">
                 {messages.map((msg) => {
                   const isMine = msg.senderId === user.id;
                   return (
@@ -472,7 +492,7 @@ export function MessagesPage() {
 
               {/* Attachment Preview Drawer (Before Sending) */}
               {selectedImagePreview && (
-                <div className="p-3 bg-brand-green-soft/40 dark:bg-emerald-950/40 border-t border-border-subtle dark:border-slate-800 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-2">
+                <div className="shrink-0 p-3 bg-brand-green-soft/40 dark:bg-emerald-950/40 border-t border-border-subtle dark:border-slate-800 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-2">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-border-subtle dark:border-slate-700 shrink-0 shadow-inner">
                       <img
@@ -510,7 +530,7 @@ export function MessagesPage() {
 
               {/* Quick Reply Suggestions */}
               {!activeConversation.isBlocked && (
-                <div className="px-4 py-2 bg-white/70 dark:bg-slate-900/70 border-t border-border-subtle dark:border-slate-800 flex items-center gap-2 overflow-x-auto">
+                <div className="shrink-0 px-4 py-2 bg-white/70 dark:bg-slate-900/70 border-t border-border-subtle dark:border-slate-800 flex items-center gap-2 overflow-x-auto">
                   <span className="text-[10px] font-bold text-text-muted dark:text-slate-500 uppercase tracking-wider shrink-0">
                     Quick replies:
                   </span>
@@ -528,7 +548,7 @@ export function MessagesPage() {
               )}
 
               {/* Input Bar */}
-              <div className="p-3 bg-white dark:bg-slate-900 border-t border-border-subtle dark:border-slate-800 transition-colors">
+              <div className="shrink-0 p-3 bg-white dark:bg-slate-900 border-t border-border-subtle dark:border-slate-800 transition-colors">
                 {activeConversation.isBlocked ? (
                   <p className="text-xs text-red-600 dark:text-red-400 text-center py-2 font-medium">
                     This conversation is blocked. Unblock it to send messages.
@@ -565,6 +585,17 @@ export function MessagesPage() {
                       title="Attach image from gallery or files"
                     >
                       <Paperclip className="w-5 h-5" />
+                    </button>
+
+                    {/* Scribble Pad Button */}
+                    <button
+                      type="button"
+                      onClick={() => setIsScribbleOpen(true)}
+                      disabled={sending}
+                      className="p-2 rounded-xl text-text-muted dark:text-slate-400 hover:text-brand-green dark:hover:text-emerald-400 hover:bg-background-secondary dark:hover:bg-slate-800 transition-colors shrink-0"
+                      title="Draw or scribble on Scribble Pad"
+                    >
+                      <PenTool className="w-5 h-5" />
                     </button>
 
                     <input
