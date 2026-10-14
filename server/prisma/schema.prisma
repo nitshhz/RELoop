@@ -1,0 +1,351 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Condition {
+  NEW
+  LIKE_NEW
+  GOOD
+  FAIR
+  POOR
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  RESERVED
+  SOLD
+  REJECTED
+  EXPIRED
+  REMOVED
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COUNTERED
+  WITHDRAWN
+  EXPIRED
+}
+
+enum ReportTarget {
+  LISTING
+  USER
+  CONVERSATION
+}
+
+enum ReportReason {
+  SPAM_SCAM
+  PROHIBITED
+  MISLEADING
+  DUPLICATE
+  HARASSMENT
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
+}
+
+enum NotificationType {
+  OFFER_RECEIVED
+  OFFER_ACCEPTED
+  OFFER_REJECTED
+  OFFER_COUNTERED
+  NEW_MESSAGE
+  PRICE_DROP
+  LISTING_APPROVED
+  LISTING_REJECTED
+  ACCOUNT_UPDATE
+}
+
+model User {
+  id               String    @id @default(uuid())
+  name             String
+  email            String    @unique
+  passwordHash     String
+  role             Role      @default(USER)
+  avatar           String?
+  bio              String?
+  isSuspended      Boolean   @default(false)
+  suspensionReason String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  listings               Listing[]
+  savedListings          SavedListing[]
+  recentlyViewed         RecentlyViewed[]
+  savedSearches          SavedSearch[]
+  offersMade             Offer[]          @relation("BuyerOffers")
+  offersReceived         Offer[]          @relation("SellerOffers")
+  conversationsAsBuyer   Conversation[]   @relation("BuyerConversations")
+  conversationsAsSeller  Conversation[]   @relation("SellerConversations")
+  messages               Message[]
+  reviewsGiven           Review[]         @relation("ReviewsGiven")
+  reviewsReceived        Review[]         @relation("ReviewsReceived")
+  reportsSubmitted       Report[]         @relation("ReporterUser")
+  notifications          Notification[]
+  auditLogs              AuditLog[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  slug        String    @unique
+  icon        String?
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  listings    Listing[]
+
+  @@index([slug])
+}
+
+model Listing {
+  id                String        @id @default(uuid())
+  title             String
+  description       String
+  price             Float
+  originalPrice     Float?
+  condition         Condition     @default(GOOD)
+  brand             String?
+  model             String?
+  specifications    Json?
+  location          String?
+  status            ListingStatus @default(PENDING_REVIEW)
+  moderationReason  String?
+  completenessScore Int           @default(50)
+  viewsCount        Int           @default(0)
+  savesCount        Int           @default(0)
+  expiresAt         DateTime?
+  sellerId          String
+  categoryId        String
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  seller         User             @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category       Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  images         ListingImage[]
+  offers         Offer[]
+  conversations  Conversation[]
+  savedBy        SavedListing[]
+  views          RecentlyViewed[]
+  priceHistories PriceHistory[]
+  reviews        Review[]
+
+  @@index([sellerId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([price])
+  @@index([createdAt])
+}
+
+model ListingImage {
+  id        String   @id @default(uuid())
+  url       String
+  publicId  String?
+  order     Int      @default(0)
+  listingId String
+  createdAt DateTime @default(now())
+
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+}
+
+model PriceHistory {
+  id        String   @id @default(uuid())
+  listingId String
+  oldPrice  Float
+  newPrice  Float
+  changedAt DateTime @default(now())
+
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+}
+
+model SavedListing {
+  id        String   @id @default(uuid())
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+  @@index([userId])
+}
+
+model RecentlyViewed {
+  id        String   @id @default(uuid())
+  userId    String
+  listingId String
+  viewedAt  DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+  @@index([userId])
+}
+
+model SavedSearch {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String?
+  query     String?
+  filters   Json?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Offer {
+  id            String      @id @default(uuid())
+  listingId     String
+  buyerId       String
+  sellerId      String
+  amount        Float
+  counterAmount Float?
+  status        OfferStatus @default(PENDING)
+  expiresAt     DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  listing       Listing     @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyer         User        @relation("BuyerOffers", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller        User        @relation("SellerOffers", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status])
+}
+
+model Conversation {
+  id          String    @id @default(uuid())
+  listingId   String
+  buyerId     String
+  sellerId    String
+  isBlocked   Boolean   @default(false)
+  blockedById String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  listing     Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyer       User      @relation("BuyerConversations", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller      User      @relation("SellerConversations", fields: [sellerId], references: [id], onDelete: Cascade)
+  messages    Message[]
+
+  @@unique([listingId, buyerId, sellerId])
+  @@index([buyerId])
+  @@index([sellerId])
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  senderId       String
+  content        String
+  isQuickReply   Boolean      @default(false)
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([senderId])
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  listingId  String
+  reviewerId String
+  sellerId   String
+  rating     Int      @default(5)
+  comment    String
+  createdAt  DateTime @default(now())
+
+  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  reviewer   User     @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+  seller     User     @relation("ReviewsReceived", fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, reviewerId])
+  @@index([sellerId])
+}
+
+model Report {
+  id              String       @id @default(uuid())
+  reporterId      String
+  targetType      ReportTarget
+  targetId        String
+  reason          ReportReason
+  details         String?
+  status          ReportStatus @default(PENDING)
+  resolutionNotes String?
+  resolvedById    String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  reporter        User         @relation("ReporterUser", fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([targetType, targetId])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  adminId    String
+  action     String
+  targetType String
+  targetId   String
+  reason     String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  admin      User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+  @@index([action])
+  @@index([createdAt])
+}

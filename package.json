@@ -1,0 +1,27 @@
+{
+  "name": "reloop",
+  "version": "1.0.0",
+  "description": "ReLoop - Secondhand marketplace: Buy smarter. Sell easier. Waste less.",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "dev": "concurrently -n \"server,client\" -c \"blue,green\" \"npm run dev --workspace=server\" \"npm run dev --workspace=client\"",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:client": "npm run dev --workspace=client",
+    "build": "npm run build --workspace=client",
+    "build:prod": "npm run prisma:generate --workspace=server && npm run build --workspace=client",
+    "start": "node server/src/index.js",
+    "test": "npm run test --workspace=server",
+    "prisma:generate": "npm run prisma:generate --workspace=server",
+    "prisma:push": "npm run prisma:push --workspace=server",
+    "prisma:migrate": "npm run prisma:migrate --workspace=server",
+    "seed": "npm run seed --workspace=server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
