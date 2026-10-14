@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../config/prisma.js';
 import { env } from '../config/env.js';
+import { sendPasswordResetEmail } from './emailService.js';
 
 export async function hashPassword(password) {
   const salt = await bcrypt.genSalt(10);
@@ -207,9 +208,12 @@ export async function requestPasswordReset(email) {
 
   console.log(`[ReLoop Password Reset] Reset code for ${normalized}: ${resetCode}`);
 
+  // Dispatch email via Resend
+  await sendPasswordResetEmail(user.email, user.name, resetCode);
+
   return {
-    message: 'Reset code generated. Enter the code and your new password.',
-    resetCode, // provided for seamless user testing
+    message: 'Reset code sent. Please check your email inbox and enter the code below.',
+    resetCode: env.NODE_ENV !== 'production' ? resetCode : undefined,
   };
 }
 

@@ -21,6 +21,8 @@ export const env = {
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY || '',
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET || '',
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
+  RESEND_API_KEY: process.env.RESEND_API_KEY || '',
+  EMAIL_FROM: process.env.EMAIL_FROM || 'ReLoop <onboarding@resend.dev>',
   ADMIN_INITIAL_EMAIL: process.env.ADMIN_INITIAL_EMAIL || 'admin@reloop.dev',
   ADMIN_INITIAL_PASSWORD: process.env.ADMIN_INITIAL_PASSWORD || 'Admin@ReLoop2026!',
 };
