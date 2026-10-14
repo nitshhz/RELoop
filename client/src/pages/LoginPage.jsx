@@ -55,15 +55,6 @@ export function LoginPage() {
           </p>
         </div>
 
-        {/* Demo Credentials Helper Pill */}
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs space-y-1">
-          <p className="font-bold text-brand-green">Demo Quick Credentials:</p>
-          <div className="text-[11px] text-text-muted space-y-0.5">
-            <p>• Admin: <code className="text-text-primary font-bold">admin@reloop.dev</code> / <code className="text-text-primary font-bold">Admin@ReLoop2026!</code></p>
-            <p>• Seller: <code className="text-text-primary font-bold">seller@reloop.dev</code> / <code className="text-text-primary font-bold">Password123!</code></p>
-            <p>• Buyer: <code className="text-text-primary font-bold">buyer1@reloop.dev</code> / <code className="text-text-primary font-bold">Password123!</code></p>
-          </div>
-        </div>
 
         {serverError && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">

@@ -213,7 +213,6 @@ export async function requestPasswordReset(email) {
 
   return {
     message: 'Reset code sent. Please check your email inbox and enter the code below.',
-    resetCode: env.NODE_ENV !== 'production' ? resetCode : undefined,
   };
 }
 

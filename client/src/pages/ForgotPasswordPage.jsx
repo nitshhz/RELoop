@@ -17,7 +17,6 @@ export function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-  const [demoCode, setDemoCode] = useState('');
 
   async function handleRequestCode(e) {
     e.preventDefault();
@@ -34,11 +33,7 @@ export function ForgotPasswordPage() {
         method: 'POST',
         data: { email },
       });
-      setSuccessMsg(res.message || 'Verification code generated.');
-      if (res.data?.resetCode) {
-        setDemoCode(res.data.resetCode);
-        setCode(res.data.resetCode); // auto-fill for convenience
-      }
+      setSuccessMsg(res.message || 'Verification code sent to your email.');
       setStep(2);
     } catch (err) {
       setServerError(err.message || 'Failed to request password reset.');
@@ -111,20 +106,6 @@ export function ForgotPasswordPage() {
           </div>
         )}
 
-        {demoCode && (
-          <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs space-y-1">
-            <div className="font-bold flex items-center gap-1.5 text-amber-800">
-              <KeyRound className="w-3.5 h-3.5" />
-              <span>Verification Code Generated</span>
-            </div>
-            <p className="font-mono text-sm tracking-wider font-extrabold text-amber-950">
-              {demoCode}
-            </p>
-            <p className="text-[11px] text-amber-700">
-              This code was automatically filled in for you below.
-            </p>
-          </div>
-        )}
 
         {step === 1 ? (
           <form onSubmit={handleRequestCode} className="space-y-4">
