@@ -27,6 +27,26 @@
     />
     
     <title>ReLoop — Buy smarter. Sell easier. Waste less.</title>
+    
+    <!-- Instant First-Visit Intro Pre-Paint Shield -->
+    <script>
+      (function() {
+        try {
+          var search = window.location.search || '';
+          var force = search.indexOf('intro=true') !== -1 || search.indexOf('splash=true') !== -1;
+          var seen = sessionStorage.getItem('reloop_intro_seen');
+          if (!seen || force) {
+            document.documentElement.classList.add('reloop-intro-active');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      html.reloop-intro-active,
+      html.reloop-intro-active body {
+        background-color: #0D130F !important;
+      }
+    </style>
   </head>
   <body class="bg-background text-text-primary antialiased selection:bg-brand-green-soft selection:text-brand-green">
     <div id="root"></div>

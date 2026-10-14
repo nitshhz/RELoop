@@ -8,41 +8,65 @@ import { useLocation } from 'react-router-dom';
  * Can be manually replayed by visiting with ?intro=true.
  */
 export function IntroSplash() {
-  const [shouldRender, setShouldRender] = useState(false);
-  const [isFadingOut, setIsFadingOut] = useState(false);
   const location = useLocation();
 
+  // Initialize synchronously on first render so actual site never flashes
+  const [shouldRender, setShouldRender] = useState(() => {
+    try {
+      const search = window.location.search || '';
+      const forceIntro = search.includes('intro=true') || search.includes('splash=true');
+      const hasSeenIntro = sessionStorage.getItem('reloop_intro_seen');
+      if (!hasSeenIntro || forceIntro) {
+        sessionStorage.setItem('reloop_intro_seen', 'true');
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  });
+
+  const [isFadingOut, setIsFadingOut] = useState(false);
+
   useEffect(() => {
-    // Check if intro was already played in this session, or forced via URL param
+    // Check if re-triggered via URL parameter navigation
     const searchParams = new URLSearchParams(location.search);
     const forceIntro = searchParams.get('intro') === 'true' || searchParams.get('splash') === 'true';
-    const hasSeenIntro = sessionStorage.getItem('reloop_intro_seen');
-
-    if (!hasSeenIntro || forceIntro) {
+    if (forceIntro && !shouldRender) {
+      setIsFadingOut(false);
       setShouldRender(true);
-      sessionStorage.setItem('reloop_intro_seen', 'true');
-
-      // Phase 1: Hold and let zoom-in finish (~2.4s)
-      const fadeTimer = setTimeout(() => {
-        setIsFadingOut(true);
-      }, 2400);
-
-      // Phase 2: Complete smooth fade-out and unmount (~3.3s total)
-      const unmountTimer = setTimeout(() => {
-        setShouldRender(false);
-      }, 3300);
-
-      return () => {
-        clearTimeout(fadeTimer);
-        clearTimeout(unmountTimer);
-      };
+      document.documentElement.classList.add('reloop-intro-active');
     }
   }, [location.search]);
+
+  useEffect(() => {
+    if (!shouldRender) {
+      document.documentElement.classList.remove('reloop-intro-active');
+      return;
+    }
+
+    // Phase 1: Hold and let zoom-in finish (~2.2s)
+    const fadeTimer = setTimeout(() => {
+      setIsFadingOut(true);
+    }, 2200);
+
+    // Phase 2: Complete smooth fade-out and unmount (~3.0s total)
+    const unmountTimer = setTimeout(() => {
+      setShouldRender(false);
+      document.documentElement.classList.remove('reloop-intro-active');
+    }, 3000);
+
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(unmountTimer);
+    };
+  }, [shouldRender]);
 
   function handleDismiss() {
     setIsFadingOut(true);
     setTimeout(() => {
       setShouldRender(false);
+      document.documentElement.classList.remove('reloop-intro-active');
     }, 280);
   }
 
