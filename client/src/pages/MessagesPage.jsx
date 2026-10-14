@@ -45,10 +45,11 @@ export function MessagesPage() {
   const cameraInputRef = useRef(null);
 
   const quickReplies = [
-    'Is this still available?',
+    'Can we negotiate on the price?',
+    'Would you consider my offer?',
     'Can you share more photos?',
-    'Can you provide more details?',
-    'Would you consider this offer?',
+    'When and where can we meet for pickup?',
+    'Is this still available?',
   ];
 
   useEffect(() => {
@@ -294,9 +295,24 @@ export function MessagesPage() {
                         )}
                       </div>
 
-                      <p className="text-[11px] text-brand-green dark:text-emerald-400 font-semibold truncate">
-                        {conv.listing?.title}
-                      </p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <p className="text-[11px] text-brand-green dark:text-emerald-400 font-semibold truncate flex-1">
+                          {conv.listing?.title}
+                        </p>
+                        {conv.listing?.offers?.[0] && (
+                          <span
+                            className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
+                              conv.listing.offers[0].status === 'ACCEPTED'
+                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                                : conv.listing.offers[0].status === 'COUNTERED'
+                                ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                                : 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300'
+                            }`}
+                          >
+                            ₹{(conv.listing.offers[0].counterAmount || conv.listing.offers[0].amount)?.toLocaleString()}
+                          </span>
+                        )}
+                      </div>
 
                       <p className="text-[11px] text-text-muted dark:text-slate-400 truncate mt-0.5">
                         {lastMsg ? (lastMsg.content || '📷 Photo attachment') : 'Started conversation'}
@@ -319,15 +335,15 @@ export function MessagesPage() {
             <>
               {/* Header */}
               <div className="p-3.5 border-b border-border-subtle dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-between transition-colors">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <button
                     onClick={() => navigate('/messages')}
-                    className="md:hidden p-1.5 rounded-lg text-text-muted hover:bg-background-secondary dark:hover:bg-slate-800"
+                    className="md:hidden p-1.5 rounded-lg text-text-muted hover:bg-background-secondary dark:hover:bg-slate-800 shrink-0"
                   >
                     <ArrowLeft className="w-5 h-5" />
                   </button>
 
-                  <div className="truncate">
+                  <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-xs sm:text-sm text-text-primary dark:text-slate-100 truncate">
                         {activeConversation.buyerId === user.id
@@ -335,18 +351,42 @@ export function MessagesPage() {
                           : activeConversation.buyer?.name}
                       </h3>
                       {activeConversation.isBlocked && (
-                        <span className="px-1.5 py-0.5 bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400 text-[10px] font-bold rounded">
+                        <span className="px-1.5 py-0.5 bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400 text-[10px] font-bold rounded shrink-0">
                           Blocked
                         </span>
                       )}
                     </div>
-                    <Link
-                      to={`/listing/${activeConversation.listingId}`}
-                      className="text-[11px] text-brand-green dark:text-emerald-400 hover:underline font-semibold block truncate"
-                    >
-                      {activeConversation.listing?.title} — ₹
-                      {activeConversation.listing?.price?.toLocaleString()}
-                    </Link>
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                      <Link
+                        to={`/listing/${activeConversation.listingId}`}
+                        className="text-[11px] text-brand-green dark:text-emerald-400 hover:underline font-semibold truncate"
+                      >
+                        {activeConversation.listing?.title} — ₹
+                        {activeConversation.listing?.price?.toLocaleString()}
+                      </Link>
+                      {activeConversation.listing?.offers?.[0] && (
+                        <Link
+                          to="/offers"
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border transition-transform hover:scale-105 shrink-0 ${
+                            activeConversation.listing.offers[0].status === 'ACCEPTED'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800'
+                              : activeConversation.listing.offers[0].status === 'COUNTERED'
+                              ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800'
+                              : 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800'
+                          }`}
+                          title="View offer negotiation on Offers page"
+                        >
+                          <Tag className="w-2.5 h-2.5 shrink-0" />
+                          <span>
+                            {activeConversation.listing.offers[0].status === 'ACCEPTED'
+                              ? `Deal Agreed: ₹${activeConversation.listing.offers[0].amount?.toLocaleString()}`
+                              : activeConversation.listing.offers[0].status === 'COUNTERED'
+                              ? `Countered: ₹${activeConversation.listing.offers[0].counterAmount?.toLocaleString()}`
+                              : `Offer: ₹${activeConversation.listing.offers[0].amount?.toLocaleString()} (${activeConversation.listing.offers[0].status})`}
+                          </span>
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </div>
 

@@ -69,7 +69,17 @@ export async function getUserConversations(userId) {
     },
     include: {
       listing: {
-        select: { id: true, title: true, price: true, status: true, images: { take: 1 } },
+        select: {
+          id: true,
+          title: true,
+          price: true,
+          status: true,
+          images: { take: 1 },
+          offers: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
+        },
       },
       buyer: { select: { id: true, name: true, avatar: true } },
       seller: { select: { id: true, name: true, avatar: true } },
@@ -102,7 +112,17 @@ export async function getConversationMessages(userId, conversationId) {
     where: { id: conversationId },
     include: {
       listing: {
-        select: { id: true, title: true, price: true, status: true, images: { take: 1 } },
+        select: {
+          id: true,
+          title: true,
+          price: true,
+          status: true,
+          images: { take: 1 },
+          offers: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
+        },
       },
       buyer: { select: { id: true, name: true, avatar: true } },
       seller: { select: { id: true, name: true, avatar: true } },
