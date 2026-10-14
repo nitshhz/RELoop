@@ -1,7 +1,7 @@
 import { prisma } from '../config/prisma.js';
 import { calculateCompleteness } from '../validators/listingSchemas.js';
 import { handlePriceChange } from './priceService.js';
-import { moderateListingWithAI } from './aiModerationService.js';
+import { moderateListingWithAI, verifyListingProductImage } from './aiModerationService.js';
 import { createNotification } from './notificationService.js';
 
 export async function createListing(sellerId, data, images = []) {
@@ -13,20 +13,44 @@ export async function createListing(sellerId, data, images = []) {
   if (data.isDraft) {
     status = 'DRAFT';
   } else {
-    // Run AI Moderation & Auto-Approval
+    // 1. Run rule & AI safety moderation on listing details
+    let textMod = { approved: true, reason: 'Valid item' };
     try {
-      const moderationResult = await moderateListingWithAI(data);
-      if (moderationResult.approved) {
-        status = 'ACTIVE';
-        moderationReason = `Auto-approved by ReLoop AI: ${moderationResult.reason}`;
-      } else {
-        status = 'PENDING_REVIEW';
-        moderationReason = `AI Flagged: ${moderationResult.reason}`;
-      }
+      textMod = await moderateListingWithAI(data);
     } catch (modErr) {
       console.warn('[AI Moderation Warning]', modErr.message);
-      status = 'ACTIVE'; // Graceful fallback
-      moderationReason = 'Auto-approved by safety fallback engine';
+    }
+
+    // 2. Run Image Safety & Product Match Verification with Gemini Vision
+    let imageMod = { safe: true, matchesProduct: true, reason: 'Verified' };
+    if (images && images.length > 0 && images[0]?.url) {
+      try {
+        let categoryName = '';
+        if (data.categoryId) {
+          const category = await prisma.category.findUnique({
+            where: { id: data.categoryId },
+            select: { name: true },
+          });
+          categoryName = category?.name || '';
+        }
+        imageMod = await verifyListingProductImage(images[0].url, data.title, categoryName);
+      } catch (imgErr) {
+        console.warn('[AI Image Verification Warning]', imgErr.message);
+      }
+    }
+
+    if (!textMod.approved) {
+      status = 'PENDING_REVIEW';
+      moderationReason = `AI Flagged: ${textMod.reason}`;
+    } else if (!imageMod.safe) {
+      status = 'PENDING_REVIEW';
+      moderationReason = `AI Flagged (Prohibited Image Content): ${imageMod.reason}`;
+    } else if (!imageMod.matchesProduct) {
+      status = 'PENDING_REVIEW';
+      moderationReason = `AI Flagged (Product Mismatch): Photo does not match item name "${data.title}". Detected: ${imageMod.detectedItem || 'Different item'}. ${imageMod.reason}`;
+    } else {
+      status = 'ACTIVE';
+      moderationReason = `Auto-approved by ReLoop AI: Image matches item "${data.title}"`;
     }
   }
 
@@ -138,6 +162,30 @@ export async function updateListing(userId, listingId, data, newImages = null, i
       }
     } catch {
       // Continue without blocking
+    }
+  }
+
+  // If new images provided or title changed, verify image matches item title
+  if ((newImages && newImages.length > 0) || (data.title && data.title !== listing.title)) {
+    const checkImageUrl = newImages?.[0]?.url || listing.images?.[0]?.url;
+    const checkTitle = data.title || listing.title;
+    if (checkImageUrl) {
+      try {
+        const cat = await prisma.category.findUnique({
+          where: { id: data.categoryId || listing.categoryId },
+          select: { name: true },
+        });
+        const imgCheck = await verifyListingProductImage(checkImageUrl, checkTitle, cat?.name || '');
+        if (!imgCheck.safe) {
+          updatePayload.status = 'PENDING_REVIEW';
+          updatePayload.moderationReason = `AI Flagged on edit (Prohibited Image Content): ${imgCheck.reason}`;
+        } else if (!imgCheck.matchesProduct) {
+          updatePayload.status = 'PENDING_REVIEW';
+          updatePayload.moderationReason = `AI Flagged on edit (Product Mismatch): Photo does not match item "${checkTitle}". Detected: ${imgCheck.detectedItem || 'Different item'}. ${imgCheck.reason}`;
+        }
+      } catch (imgErr) {
+        console.warn('[AI Image Update Verification Warning]', imgErr.message);
+      }
     }
   }
 

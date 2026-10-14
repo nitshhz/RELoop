@@ -270,6 +270,7 @@ model Message {
   conversationId String
   senderId       String
   content        String
+  imageUrl       String?
   isQuickReply   Boolean      @default(false)
   isRead         Boolean      @default(false)
   createdAt      DateTime     @default(now())

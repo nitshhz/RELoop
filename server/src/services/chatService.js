@@ -143,7 +143,7 @@ export async function getConversationMessages(userId, conversationId) {
   return { conversation, messages };
 }
 
-export async function sendMessage({ userId, conversationId, content, isQuickReply = false }) {
+export async function sendMessage({ userId, conversationId, content = '', imageUrl = null, isQuickReply = false }) {
   const conversation = await prisma.conversation.findUnique({
     where: { id: conversationId },
     include: {
@@ -170,11 +170,19 @@ export async function sendMessage({ userId, conversationId, content, isQuickRepl
     throw error;
   }
 
+  const cleanContent = typeof content === 'string' ? content.trim() : '';
+  if (!cleanContent && !imageUrl) {
+    const error = new Error('Message text or an image attachment is required.');
+    error.statusCode = 400;
+    throw error;
+  }
+
   const message = await prisma.message.create({
     data: {
       conversationId,
       senderId: userId,
-      content: content.trim(),
+      content: cleanContent,
+      imageUrl: imageUrl || null,
       isQuickReply: Boolean(isQuickReply),
     },
     include: {
@@ -190,11 +198,15 @@ export async function sendMessage({ userId, conversationId, content, isQuickRepl
 
   // Send notification to recipient
   const recipientId = conversation.buyerId === userId ? conversation.sellerId : conversation.buyerId;
+  const previewText = cleanContent
+    ? (cleanContent.length > 60 ? `${cleanContent.slice(0, 57)}...` : cleanContent)
+    : '📷 [Image Attachment]';
+
   await createNotification({
     userId: recipientId,
     type: 'NEW_MESSAGE',
     title: `New message on "${conversation.listing.title}"`,
-    message: content.length > 60 ? `${content.slice(0, 57)}...` : content,
+    message: previewText,
     link: `/messages/${conversationId}`,
   });
 
